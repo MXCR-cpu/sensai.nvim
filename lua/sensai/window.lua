@@ -35,16 +35,16 @@ win.win_mount = function()
 end
 
 win.win_close = function()
-	local win = win.win
-	local buf = win.buf
+	local local_win = win.win
+	local local_buf = win.buf
 	win.win = nil
 	win.buf = nil
 	vim.schedule(function()
-		if win and api.nvim_win_is_valid(win) then
-			api.nvim_win_close(win, true)
+		if local_win and api.nvim_win_is_valid(local_win) then
+			api.nvim_win_close(local_win, true)
 		end
-		if buf and api.nvim_buf_is_valid(buf) then
-			api.nvim_buf_delete(buf, { force = true })
+		if local_buf and api.nvim_buf_is_valid(local_buf) then
+			api.nvim_buf_delete(local_buf, { force = true })
 		end
 	end)
 end
