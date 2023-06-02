@@ -6,6 +6,7 @@ win.setup = function(opts)
 	win.opts = vim.tbl_deep_extend("force", {
 		style = "minimal",
 		border = "single",
+		border = "none",
 		zindex = 50,
 	}, opts or {})
 	win.display_opts = {
@@ -59,6 +60,10 @@ win.mount = function()
 			end
 		end
 	})
+end
+
+win.set_text = function(lines)
+	api.nvim_buf_set_lines(win.buf, 0, #lines-1, false, lines)
 end
 
 win.close = function()

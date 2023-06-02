@@ -8,6 +8,11 @@ local M = {
 M.commands.sensai = function()
 	print("commands: sensai")
 	window.setup({})
+	window.set_text({
+		"Your face",
+		"Your mom",
+		"Fear me",
+	})
 end
 
 M.commands.sensai_prompt = function()
