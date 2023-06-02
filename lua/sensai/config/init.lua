@@ -13,10 +13,14 @@ local defaults = {
 }
 
 M.check_python_connection = function()
-	local check_python = cmd[[!python --version]]
-	local check_poetry = cmd[[!poetry --version]]
-	print(check_python)
-	print(check_poetry)
+	-- local check_python = fn.executable("python3")
+	if not fn.executable("python3") then
+		vim.notify("sensai.nvim: check_python_connection: python3 not found")
+	end
+	-- local check_poetry = fn.executable('poetry')
+	if not fn.executable("poetry") then
+		vim.notify("sensai.nvim: check_python_connection: poetry not found")
+	end
 end
 
 M.setup_models_directory = function()
