@@ -1,4 +1,5 @@
 local api = vim.api
+local o = vim.o
 local win = {}
 
 win.setup = function(opts)
@@ -20,7 +21,15 @@ win.setup = function(opts)
 		width = 50,
 		height = 50
 	}
-	win.win_mount()
+	win.layout()
+	win.mount()
+end
+
+win.layout = function()
+	win.display_opts.width = math.floor(o.columns / 2)
+	win.display_opts.height = math.floor(o.lines / 2)
+	win.display_opts.row = math.floor(o.lines / 4)
+	win.display_opts.col = math.floor(o.columns / 4)
 end
 
 win.mount = function()
@@ -29,6 +38,27 @@ win.mount = function()
 	end
 	win.win = api.nvim_open_win(win.buf, true, win.display_opts)
 	api.nvim_set_current_win(win.win)
+	api.nvim_create_autocmd("VimResized", {
+		callback = function()
+			if not (win.win and api.nvim_win_is_valid(win.win)) then
+				return true
+			end
+			win.layout()
+			local config = {}
+			for _, key in ipairs({ "relative", "width", "height", "col", "row" }) do
+				config[key] = win.display_opts[key]
+			end
+			api.nvim_win_set_config(win.win, config)
+		end
+	})
+	api.nvim_create_autocmd("BufLeave", {
+		callback = function(args)
+			if args.buf == win.buf then
+				win.close()
+				return true
+			end
+		end
+	})
 end
 
 win.close = function()
