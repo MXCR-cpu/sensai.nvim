@@ -31,4 +31,4 @@ color.setup = function()
 	color.did_setup = true
 end
 
-return M
+return color
