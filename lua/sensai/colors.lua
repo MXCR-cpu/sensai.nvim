@@ -18,7 +18,7 @@ color.add = function()
 	end
 end
 
-color.setup = function(buf)
+color.setup = function()
 	if color.did_setup then
 		return
 	end
