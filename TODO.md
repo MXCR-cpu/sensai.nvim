@@ -1,5 +1,15 @@
-# TODO:
-- [ ] Searching & Collecting Models
-- [ ] Storing Models
-- [ ] Selecting & Using Models
-    - [ ] Tracking Context
+#TODO:
+- [ ] Models
+    - [ ] Query existing models
+    - [ ] Download models
+    - [ ] Delete models
+- [ ] Context
+    - [ ] Create new context
+    - [ ] Delete context
+    - [ ] Prompt with context
+    - [ ] View different contexts
+- [ ] Backup
+    - [ ] Save all information on system
+- [ ] Other
+    - [ ] Provide model information
+    - [ ] Provide usage statistics
