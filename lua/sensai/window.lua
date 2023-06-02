@@ -5,7 +5,7 @@ local win = {}
 win.setup = function(opts)
 	win.opts = vim.tbl_deep_extend("force", {
 		style = "minimal",
-		border = "single",
+		-- border = "single",
 		border = "none",
 		zindex = 50,
 	}, opts or {})

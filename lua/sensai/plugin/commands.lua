@@ -1,5 +1,6 @@
 local api = vim.api
 local window = require("sensai.window")
+local color = require("sensai.colors")
 local M = {
 	setup = false,
 	commands = {},
@@ -8,6 +9,7 @@ local M = {
 M.commands.sensai = function()
 	print("commands: sensai")
 	window.setup({})
+	color.setup()
 	window.set_text({
 		"Your face",
 		"Your mom",

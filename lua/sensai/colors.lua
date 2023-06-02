@@ -3,7 +3,7 @@ local color = {}
 
 color.scheme = {
 	H1 = 'IncSearch',
-	H2 = 'Bold'
+	H2 = 'Bold',
 	Normal = 'NormalFloat',
 }
 
@@ -18,7 +18,7 @@ color.add = function()
 	end
 end
 
-color.setup = function()
+color.setup = function(buf)
 	if color.did_setup then
 		return
 	end
