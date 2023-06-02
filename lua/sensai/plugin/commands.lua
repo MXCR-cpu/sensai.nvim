@@ -7,7 +7,7 @@ local M = {
 
 M.commands.sensai = function()
 	print("commands: sensai")
-	window.win_setup({})
+	window.setup({})
 end
 
 M.commands.sensai_prompt = function()

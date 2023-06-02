@@ -1,16 +1,13 @@
 local api = vim.api
-local win = {
-	opts = {},
-	win_opts = {},
-}
+local win = {}
 
-win.win_setup = function(opts)
+win.setup = function(opts)
 	win.opts = vim.tbl_deep_extend("force", {
 		style = "minimal",
 		border = "single",
 		zindex = 50,
 	}, opts or {})
-	win.win_opts = {
+	win.display_opts = {
 		relative = "editor",
 		style = win.opts.style ~= "" and win.opts.style or nil,
 		border = win.opts.border,
@@ -26,15 +23,15 @@ win.win_setup = function(opts)
 	win.win_mount()
 end
 
-win.win_mount = function()
+win.mount = function()
 	if not win.buf then
 		win.buf = api.nvim_create_buf(false, false)
 	end
-	win.win = api.nvim_open_win(win.buf, true, win.win_opts)
+	win.win = api.nvim_open_win(win.buf, true, win.display_opts)
 	api.nvim_set_current_win(win.win)
 end
 
-win.win_close = function()
+win.close = function()
 	local local_win = win.win
 	local local_buf = win.buf
 	win.win = nil
