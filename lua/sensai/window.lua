@@ -22,8 +22,6 @@ win.setup = function(opts)
 		height = 50
 	}
 	win.display_opts = {}
-	-- win.layout()
-	-- win.mount()
 end
 
 win.layout = function(dimensions)
@@ -101,11 +99,25 @@ win.mount = function()
 end
 
 win.set_layers = function(text_array)
+	local width = function(text)
+		local width = 0
+		for _, line in ipairs(text) do
+			if width < #line then
+				width = #line
+			end
+		end
+		return width
+	end
 	for index, text in ipairs(text_array) do
 		if index > #win.bufs then
 			return
 		end
-		api.nvim_buf_set_lines(win.bufs[index], 0, #text - 1, false, text)
+		local text_offset =  math.max(win.display_opts[index].width - width(text), 0)
+		local new_text = {}
+		for _, line in ipairs(text) do
+			new_text[#new_text+1] = string.rep(' ', text_offset) .. line
+		end
+		api.nvim_buf_set_lines(win.bufs[index], 0, #text - 1, false, new_text)
 	end
 end
 
@@ -114,7 +126,6 @@ win.close = function()
 	local bufs = win.bufs
 	win.frames = nil
 	win.bufs = nil
-	print(vim.inspect(bufs))
 	vim.schedule(function()
 		if bufs and api.nvim_buf_is_valid(bufs[1]) then
 			for _, buf in ipairs(bufs) do

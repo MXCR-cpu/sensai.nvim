@@ -8,14 +8,14 @@ local M = {
 }
 
 M.commands.sensai = function()
-	print("starting sensai command")
+	-- print("starting sensai command")
 	-- local tree = text.tree
 	window.setup({})
 	window.layouts({
 		{},
 		{
 			width = 45,
-			height = 7,
+			height = 6,
 			row = 20,
 			col = 30,
 		},
@@ -25,7 +25,7 @@ M.commands.sensai = function()
 		text.tree,
 		text.title,
 	})
-	print("endding sensai command")
+	-- print("endding sensai command")
 end
 
 M.commands.sensai_prompt = function()
