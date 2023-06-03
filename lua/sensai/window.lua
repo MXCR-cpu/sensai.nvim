@@ -5,11 +5,10 @@ local win = {}
 win.setup = function(opts)
 	win.opts = vim.tbl_deep_extend("force", {
 		style = "minimal",
-		-- border = "single",
 		border = "none",
 		zindex = 50,
 	}, opts or {})
-	win.display_opts = {
+	win.default_opts = {
 		relative = "editor",
 		style = win.opts.style ~= "" and win.opts.style or nil,
 		border = win.opts.border,
@@ -22,61 +21,108 @@ win.setup = function(opts)
 		width = 50,
 		height = 50
 	}
-	win.layout()
+	win.display_opts = {}
+	-- win.layout()
+	-- win.mount()
+end
+
+win.layout = function(dimensions)
+	if next(dimensions) ~= nil then
+		win.display_opts[#win.display_opts + 1] = vim.tbl_extend(
+			"force",
+			win.default_opts,
+			dimensions)
+		return
+	end
+	local gap = 1 / 8
+	win.display_opts[#win.display_opts + 1] = vim.tbl_extend(
+		"force",
+		win.default_opts,
+		{
+			width = math.floor(o.columns * (1 - (2 * gap))),
+			height = math.floor(o.lines * (1 - (2 * gap))),
+			row = math.floor(o.lines * gap),
+			col = math.floor(o.columns * gap),
+		})
+end
+
+win.layouts = function(dimensions_array)
+	for _, dimensions in ipairs(dimensions_array) do
+		win.layout(dimensions)
+	end
 	win.mount()
 end
 
-win.layout = function()
-	win.display_opts.width = math.floor(o.columns / 2)
-	win.display_opts.height = math.floor(o.lines / 2)
-	win.display_opts.row = math.floor(o.lines / 4)
-	win.display_opts.col = math.floor(o.columns / 4)
-end
-
 win.mount = function()
-	if not win.buf then
-		win.buf = api.nvim_create_buf(false, false)
+	if not win.bufs then
+		win.bufs = {}
+		for _, _ in ipairs(win.display_opts) do
+			win.bufs[#win.bufs + 1] = api.nvim_create_buf(false, false)
+		end
+	elseif #win.bufs ~= #win.display_opts then
+		for i = #win.bufs + 1, #win.display_opts do
+			win.bufs[i] = api.nvim_create_buf(false, false)
+		end
 	end
-	win.win = api.nvim_open_win(win.buf, true, win.display_opts)
-	api.nvim_set_current_win(win.win)
+	win.frames = {}
+	for index, display_opt in ipairs(win.display_opts) do
+		win.frames[index] = api.nvim_open_win(win.bufs[index], true, display_opt)
+		if index == 1 then
+			api.nvim_set_current_buf(win.bufs[1])
+			api.nvim_set_current_win(win.frames[1])
+		end
+	end
+	-- TODO: this needs to corrected
 	api.nvim_create_autocmd("VimResized", {
 		callback = function()
-			if not (win.win and api.nvim_win_is_valid(win.win)) then
+			if not (win.frames and api.nvim_win_is_valid(win.frames[1])) then
 				return true
 			end
-			win.layout()
+			win.layout(nil)
 			local config = {}
 			for _, key in ipairs({ "relative", "width", "height", "col", "row" }) do
-				config[key] = win.display_opts[key]
+				config[key] = win.display_opts[index][key]
 			end
-			api.nvim_win_set_config(win.win, config)
+			for index, _ in ipairs(win.display_opts) do
+				api.nvim_win_set_config(win.frames[index], config)
+			end
 		end
 	})
 	api.nvim_create_autocmd("BufLeave", {
 		callback = function(args)
-			if args.buf == win.buf then
-				win.close()
-				return true
+			for _, buf in ipairs(win.bufs) do
+				if buf == args.buf then
+					win.close()
+					return true
+				end
 			end
 		end
 	})
 end
 
-win.set_text = function(lines)
-	api.nvim_buf_set_lines(win.buf, 0, #lines-1, false, lines)
+win.set_layers = function(text_array)
+	for index, text in ipairs(text_array) do
+		if index > #win.bufs then
+			return
+		end
+		api.nvim_buf_set_lines(win.bufs[index], 0, #text - 1, false, text)
+	end
 end
 
 win.close = function()
-	local local_win = win.win
-	local local_buf = win.buf
-	win.win = nil
-	win.buf = nil
+	local frames = win.frames
+	local bufs = win.bufs
+	win.frames = nil
+	win.bufs = nil
+	print(vim.inspect(bufs))
 	vim.schedule(function()
-		if local_win and api.nvim_win_is_valid(local_win) then
-			api.nvim_win_close(local_win, true)
+		if bufs and api.nvim_buf_is_valid(bufs[1]) then
+			for _, buf in ipairs(bufs) do
+				api.nvim_buf_delete(buf, { force = true })
+			end
 		end
-		if local_buf and api.nvim_buf_is_valid(local_buf) then
-			api.nvim_buf_delete(local_buf, { force = true })
+		if frames and api.nvim_win_is_valid(frames[1]) then
+			api.nvim_win_close(frames[1], true)
 		end
 	end)
 end

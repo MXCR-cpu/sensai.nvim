@@ -1,6 +1,6 @@
 local M = {}
 
-local commands = { "git", "rg", { "fd", "fdfind" }, "lazygit" }
+local commands = { "git", "rg", { "fd", "fdfind" } }
 local start = vim.health.start or vim.health.report_start
 local ok = vim.health.ok or vim.health.report_ok
 local warn = vim.health.warn or vim.health.report_warn

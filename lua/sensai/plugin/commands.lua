@@ -1,20 +1,31 @@
 local api = vim.api
 local window = require("sensai.window")
 local color = require("sensai.colors")
+local text = require("sensai.text")
 local M = {
 	setup = false,
 	commands = {},
 }
 
 M.commands.sensai = function()
-	print("commands: sensai")
+	print("starting sensai command")
+	-- local tree = text.tree
 	window.setup({})
-	color.setup()
-	window.set_text({
-		"Your face",
-		"Your mom",
-		"Fear me",
+	window.layouts({
+		{},
+		{
+			width = 45,
+			height = 7,
+			row = 20,
+			col = 30,
+		},
 	})
+	color.setup()
+	window.set_layers({
+		text.tree,
+		text.title,
+	})
+	print("endding sensai command")
 end
 
 M.commands.sensai_prompt = function()
