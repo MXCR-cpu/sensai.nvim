@@ -8,24 +8,55 @@ local M = {
 }
 
 M.commands.sensai = function()
-	-- print("starting sensai command")
-	-- local tree = text.tree
 	window.setup({})
 	window.layouts({
 		{},
 		{
 			width = 45,
 			height = 6,
-			row = 20,
-			col = 30,
+			row = 5,
+			col = 5,
+		},
+		{
+			width = 45,
+			height = 10,
+			row = 15,
+			col = 5,
+			title = "Context (c)"
+		},
+		{
+			width = 45,
+			height = 10,
+			row = 30,
+			col = 5,
+			title = "Models (m)"
 		},
 	})
-	color.setup()
 	window.set_layers({
 		text.tree,
 		text.title,
+		{
+			"line 1",
+			"line 2",
+			"line 3",
+			"line 4",
+			"line 5",
+		},
+		{
+			"line 1",
+			"line 2",
+			"line 3",
+			"line 4",
+			"line 5",
+		},
+	},
+	{
+		0b10,
+		0b11,
+		0b11,
+		0b11,
 	})
-	-- print("endding sensai command")
+	color.setup()
 end
 
 M.commands.sensai_prompt = function()
