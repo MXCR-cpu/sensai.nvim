@@ -2,12 +2,14 @@ local api = vim.api
 local window = require("sensai.window")
 local color = require("sensai.colors")
 local text = require("sensai.text")
+local operations = require("sensai.plugin.operations")
 local M = {
 	setup = false,
 	commands = {},
 }
 
 M.commands.sensai = function()
+	operations.setup()
 	window.setup({})
 	window.layouts({
 		{},
@@ -19,14 +21,14 @@ M.commands.sensai = function()
 		},
 		{
 			width = 45,
-			height = 10,
+			height = math.max(#operations.contexts_list, 10),
 			row = 15,
 			col = 5,
 			title = "Context (c)"
 		},
 		{
 			width = 45,
-			height = 10,
+			height = math.max(#operations.models_list, 10),
 			row = 30,
 			col = 5,
 			title = "Models (m)"
@@ -35,32 +37,20 @@ M.commands.sensai = function()
 	window.set_layers({
 		text.tree,
 		text.title,
-		{
-			"line 1",
-			"line 2",
-			"line 3",
-			"line 4",
-			"line 5",
-		},
-		{
-			"line 1",
-			"line 2",
-			"line 3",
-			"line 4",
-			"line 5",
-		},
+		operations.contexts_list,
+		operations.models_list,
 	},
 	{
-		0b10,
-		0b11,
-		0b11,
-		0b11,
+		2,
+		3,
+		3,
+		3,
 	})
 	color.setup()
 end
 
 M.commands.sensai_prompt = function()
-	print("commands: sensai_prompt")
+	-- print("commands: sensai_prompt")
 	local left_position = api.nvim_buf_get_mark(0, "<")
 	local right_position = api.nvim_buf_get_mark(0, ">")
 	local lines = api.nvim_buf_get_lines(

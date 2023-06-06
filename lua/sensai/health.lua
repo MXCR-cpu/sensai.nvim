@@ -1,3 +1,4 @@
+local fn = vim.fn
 local M = {}
 
 local commands = { "git", "rg", { "fd", "fdfind" } }
@@ -16,12 +17,12 @@ function M.check()
 
 	for _, cmd in ipairs(commands) do
 		local name = type(cmd) == "string" and cmd or vim.inspect(cmd)
-		local commands = type(cmd) == "string" and { cmd } or cmd
-		---@cast commands string[]
+		local new_cmd = type(cmd) == "string" and { cmd } or cmd
+		---@cast new_cmd string[]
 		local found = false
 
-		for _, c in ipairs(commands) do
-			if vim.fn.executable(c) == 1 then
+		for _, c in ipairs(new_cmd) do
+			if fn.executable(c) == 1 then
 				name = c
 				found = true
 			end
