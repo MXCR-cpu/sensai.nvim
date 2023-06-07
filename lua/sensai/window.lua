@@ -85,11 +85,13 @@ win.mount = function()
 			end
 			win.layout(nil)
 			local config = {}
-			for _, key in ipairs({ "relative", "width", "height", "col", "row" }) do
-				config[key] = win.display_opts[index][key]
-			end
 			for index, _ in ipairs(win.display_opts) do
-				api.nvim_win_set_config(win.frames[index], config)
+				for _, key in ipairs({ "relative", "width", "height", "col", "row" }) do
+					config[key] = win.display_opts[index][key]
+				end
+				for index, _ in ipairs(win.display_opts) do
+					api.nvim_win_set_config(win.frames[index], config)
+				end
 			end
 		end
 	})

@@ -9,7 +9,6 @@ local M = {
 }
 
 M.commands.sensai = function()
-	operations.setup()
 	window.setup({})
 	window.layouts({
 		{},
@@ -57,9 +56,9 @@ M.commands.sensai_prompt = function()
 		0,
 		left_position[1] - 1,
 		right_position[1],
-		true
-	)
-	print(vim.inspect(lines))
+		true)
+	-- print(vim.inspect(lines))
+	operations.prompt()
 end
 
 return M
