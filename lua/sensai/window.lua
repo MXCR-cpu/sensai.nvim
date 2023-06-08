@@ -3,7 +3,12 @@ local o = vim.o
 local bit = require("bit")
 local win = {}
 
+win.ran = 0
+
 win.setup = function(opts)
+	if win.ran == 1 then
+		return 1
+	end
 	win.opts = vim.tbl_deep_extend("force", {
 		style = "minimal",
 		border = "single",
@@ -23,6 +28,8 @@ win.setup = function(opts)
 		zindex = 100,
 	}
 	win.display_opts = {}
+	M.ran = 1
+	return 0
 end
 
 win.layout = function(index, dimensions)
@@ -39,7 +46,7 @@ win.layout = function(index, dimensions)
 		return
 	end
 	-- range = [0, 1/2)
-	local horizontal_gap = 1 / 4
+	local horizontal_gap = 1 / 8
 	local vertical_gap = 1 / 8
 	win.display_opts[#win.display_opts + 1] = vim.tbl_extend(
 		"force",
@@ -58,10 +65,11 @@ win.layouts = function(dimensions_array)
 		win.layout(index, dimensions)
 	end
 	win.mount()
+	win.set_keymaps()
 end
 
 win.mount = function()
-	if not win.bufs then
+	if type(win.bufs) == "nil" then
 		win.bufs = {}
 		for _, _ in ipairs(win.display_opts) do
 			win.bufs[#win.bufs + 1] = api.nvim_create_buf(false, true)
@@ -78,8 +86,12 @@ win.mount = function()
 		api.nvim_set_current_win(win.frames[index])
 	end
 	-- TODO: this needs to corrected
+	win.sensai_win_augroup = api.nvim_create_augroup('Sensai Window', {
+		clear = false,
+	})
 	api.nvim_create_autocmd("VimResized", {
-		callback = function()
+		group = win.sensai_win_augroup,
+		callback = function(args)
 			if not (win.frames and api.nvim_win_is_valid(win.frames[1])) then
 				return true
 			end
@@ -95,14 +107,34 @@ win.mount = function()
 			end
 		end
 	})
-	api.nvim_create_autocmd("BufLeave", {
+	api.nvim_create_autocmd("BufEnter", {
+		group = win.sensai_win_augroup,
 		callback = function(args)
+			if type(win.bufs) == "nil" then
+				return true
+			end
+			for _, buf in ipairs(win.bufs) do
+				if buf == args.buf then
+					return false
+				end
+			end
+			win.close()
+			return true
+		end
+	})
+	api.nvim_create_autocmd("WinClosed", {
+		group = win.sensai_win_augroup,
+		callback = function(args)
+			if type(win.bufs) == "nil" then
+				return true
+			end
 			for _, buf in ipairs(win.bufs) do
 				if buf == args.buf then
 					win.close()
 					return true
 				end
 			end
+			return false
 		end
 	})
 end
@@ -135,7 +167,26 @@ win.set_layers = function(text_array, alignment_array)
 		for _, line in ipairs(text) do
 			new_text[#new_text+1] = string.rep(' ', horizonal_text_offset) .. line
 		end
+		api.nvim_buf_set_option(win.bufs[index], 'modifiable', true)
 		api.nvim_buf_set_lines(win.bufs[index], 0, #new_text - 1, false, new_text)
+		api.nvim_buf_set_option(win.bufs[index], 'modifiable', false)
+	end
+end
+
+win.set_keymaps = function()
+	for index = 3, #win.bufs do
+		vim.keymap.set('n', 'c', '<cmd>lua vim.api.nvim_set_current_win(' .. win.frames[3] .. ')<CR>', {
+			silent = true,
+			buffer = win.bufs[index]
+		})
+		vim.keymap.set('n', 'm', '<cmd>lua vim.api.nvim_set_current_win(' .. win.frames[4] .. ')<CR>', {
+			silent = true,
+			buffer = win.bufs[index]
+		})
+		vim.keymap.set('n', 'i', '<cmd>lua vim.api.nvim_set_current_win(' .. win.frames[5] .. ')<CR>', {
+			silent = true,
+			buffer = win.bufs[index]
+		})
 	end
 end
 

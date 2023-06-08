@@ -10,20 +10,20 @@ local M = {
 	data_directory = "",
 }
 M.check_python_connection = function()
-	if M.ran == 1 then
-		return
-	end
+	-- if M.ran == 1 then
+	-- 	return 1, {}
+	-- end
 	if not fn.executable("curl") then
 		vim.notify("sensai.nvim: curl not found")
-		return 0
+		return 0, {}
 	end
 	if not fn.executable("python3") then
 		vim.notify("sensai.nvim: python3 not found")
-		return 0
+		return 0, {}
 	end
 	if not fn.executable("poetry") then
 		vim.notify("sensai.nvim: poetry not found")
-		return 0
+		return 0, {}
 	end
 	local jobs = {
 		"poetry init",
@@ -42,14 +42,12 @@ M.check_python_connection = function()
 		})
 	end
 	local exit_codes = fn.jobwait(job_calls)
+	local exit_strings = {}
 	for index, exit_code in ipairs(exit_codes) do
-		-- if exit_code ~= 0 then
-		-- 	print('executing: ' .. jobs[index] .. '; job_call: ' .. job_calls[index] .. '; exit_code: ' .. exit_code)
-		-- end
-		print('executing: ' .. jobs[index] .. '; job_call: ' .. job_calls[index] .. '; exit_code: ' .. exit_code)
+		exit_strings[#exit_strings+1] = 'executing: ' .. jobs[index] .. '; job_call: ' .. job_calls[index] .. '; exit_code: ' .. exit_code
 	end
-	M.ran = 1
-	return 1
+	-- M.ran = 1
+	return 1, exit_strings
 end
 
 -- M.setup_models_directory = function()
@@ -75,6 +73,7 @@ end
 
 M.setup = function(_)
 	M.ran = 0
+	return 1
 end
 
 return M

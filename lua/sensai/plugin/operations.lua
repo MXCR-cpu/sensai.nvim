@@ -38,14 +38,11 @@ end
 M.setup = function()
 	local permissions = 438
 	config.data_directory = fn.stdpath('data') .. '/sensai'
-	if config.setup() ~= 0 then
-		api.nvim_create_autocmd({ 'VimEnter' }, {
-			group = M.sensai_augroup,
-			callback = function()
-				config.check_python_connection()
-			end,
-		})
-	else
+	M.sensai_augroup = api.nvim_create_augroup('Sensai', {
+		clear = false,
+	})
+	local co
+	if config.setup() == 0 then
 		return
 	end
 	if loop.fs_scandir(config.data_directory) == nil then
@@ -53,10 +50,6 @@ M.setup = function()
 	end
 	M.models_list = api.nvim_call_function('json_decode', {initialize_repo('models')})
 	M.contexts_list = api.nvim_call_function('json_decode', {initialize_repo('contexts')})
-
-	M.sensai_augroup = api.nvim_create_augroup('Sensai', {
-		clear = false
-	})
 	api.nvim_create_autocmd({ 'VimLeave' }, {
 		group = M.sensai_augroup,
 		callback = function(_)
@@ -79,12 +72,12 @@ end
 
 M.prompt = function()
 	local directory = vim.split(fn.expand('%:p'), "sensai.nvim")[1] .. "sensai.nvim"
-	local result = util.run_cmd("poetry run python3 " .. directory .. "/lua/sensai/scripts/setup.py ")
-	print(result)
+	local prompt = { 'def fibonacci():\n' }
+	local result = util.run_cmd("poetry run python3 " .. directory .. "/lua/sensai/scripts/prompt.py '" .. prompt[1] .. "'")
+	return result
 end
 
 -- -- model_name string
--- M.select_model = function(model_name)
 -- 	-- todo
 -- end
 
